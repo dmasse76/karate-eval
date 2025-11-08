@@ -1,4 +1,9 @@
 {
+  "eleves": [
+    "Extra 1",
+    "Extra 2",
+    "Extra 3"
+  ],
   "categories": [
     {
       "key": "kihon",

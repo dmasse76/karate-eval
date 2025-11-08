@@ -190,10 +190,7 @@
                         <select id="eleve-header" style="flex:1" aria-label="Sélectionner un élève (haut)">
                             <option value="">— Sélectionner —</option>
                         </select>
-                        <button id="add-eleve-header" title="Ajouter un élève" type="button" style="padding:0.5rem 0.8rem;font-size:1.2rem;">+</button>
                     </div>
-                    <label for="new-eleve-header" class="visually-hidden">Nom du nouvel élève</label>
-                    <input id="new-eleve-header" type="text" placeholder="Nom du nouvel élève" style="display:none;margin-top:0.5rem;" />
                 </div>
                 <div>
                     <label for="evaluator">Évaluateur / trice</label>
@@ -284,6 +281,7 @@
         // Ajouter d'autres couleurs ici
     };
     let currentCategories = [];
+    let currentEleves = [];
 
     // Met à jour dynamiquement le menu Niveau
     function updateLevelMenu() {
@@ -305,11 +303,29 @@
             const resp = await fetch(file);
             const data = await resp.json();
             currentCategories = data.categories;
+            currentEleves = Array.isArray(data.eleves) ? data.eleves.slice() : [];
             renderQuestions();
+            loadElevesFromJson();
         } catch (e) {
             currentCategories = [];
+            currentEleves = [];
             $('#questions').innerHTML = '<div class="muted">Erreur de chargement du formulaire.</div>';
         }
+    }
+
+    function loadElevesFromJson() {
+        // Remplit tous les selects d'élèves à partir de currentEleves
+        eleveSelectors.forEach(id => {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            sel.innerHTML = '<option value="">— Sélectionner —</option>';
+            currentEleves.forEach(nom => {
+                const opt = document.createElement('option');
+                opt.value = nom; opt.textContent = nom;
+                sel.appendChild(opt);
+            });
+        });
+        syncAllEleveSelectors(currentEleve);
     }
 
     // --- Variables globales pour la gestion multi-élèves ---
@@ -325,25 +341,17 @@
         eleveAddButtons.length = 0;
         eleveNewInputs.length = 0;
         eleveSelectors.push('eleve-header');
-        eleveAddButtons.push('add-eleve-header');
-        eleveNewInputs.push('new-eleve-header');
         currentCategories.forEach((cat) => {
             const section = el('div', {className: 'cat-section'});
             const sectionTitle = el('h2', {className: 'cat-title', textContent: cat.title});
             section.appendChild(sectionTitle);
-            // Bloc sélecteur d'élève pour cette section
+            // Bloc sélecteur d'élève pour cette section (sans bouton + ni input)
             const selRow = el('div', {style: 'display: flex; gap: 0.5rem; align-items: center; margin-bottom: 10px;'});
             const sel = el('select', {id: `eleve-section-${cat.key}`, style: 'flex:1', 'aria-label': `Sélectionner un élève (${cat.title})`});
             sel.innerHTML = '<option value="">— Sélectionner —</option>';
-            const btn = el('button', {id: `add-eleve-section-${cat.key}`, type: 'button', title: 'Ajouter un élève', style: 'padding:0.5rem 0.8rem;font-size:1.2rem;'}, '+');
-            const input = el('input', {id: `new-eleve-section-${cat.key}`, type: 'text', placeholder: 'Nom du nouvel élève', style: 'display:none;margin-top:0.5rem;'});
             selRow.appendChild(sel);
-            selRow.appendChild(btn);
             section.appendChild(selRow);
-            section.appendChild(input);
             eleveSelectors.push(sel.id);
-            eleveAddButtons.push(btn.id);
-            eleveNewInputs.push(input.id);
             cat.subTechniques.forEach((subName, subIdx) => {
                 const wrap = el('div',{className:'q', id:`q-${cat.key}-${subIdx+1}`});
                 const title = el('div',{className:'title', textContent:`${cat.title} | ${subName}`});
@@ -727,35 +735,7 @@
                 isSyncing = false;
             });
         });
-        eleveAddButtons.forEach((btnId, idx) => {
-            const btn = document.getElementById(btnId);
-            const inputId = eleveNewInputs[idx];
-            const input = document.getElementById(inputId);
-            if (!btn || !input) return;
-            btn.addEventListener('click', () => {
-                input.style.display = '';
-                input.focus();
-            });
-            input.addEventListener('keydown', e => {
-                if (e.key === 'Enter') {
-                    const nom = input.value.trim();
-                    if (nom && !eleves[nom]) {
-                        saveCurrentEleve();
-                        eleves[nom] = { candidate: nom, answers: {} };
-                        saveEleves();
-                        loadEleves();
-                        eleveSelectors.forEach(otherId => {
-                            const otherSel = document.getElementById(otherId);
-                            if (otherSel) otherSel.value = nom;
-                        });
-                        currentEleve = nom;
-                        loadCurrentEleve(nom);
-                    }
-                    input.value = '';
-                    input.style.display = 'none';
-                }
-            });
-        });
+        // Suppression de la gestion du bouton + et de l'input d'ajout
     }
     // Initialisation des élèves
     loadEleves();
@@ -768,32 +748,11 @@
             }
         });
     });
-    // Ajout d'une fonction pour effacer tous les élèves
-    function clearEleves() {
-        if(confirm('Effacer tous les élèves ?')) {
-            eleves = {};
-            localStorage.removeItem(ELEVE_KEY);
-            currentEleve = '';
-            loadEleves();
-            syncAllEleveSelectors('');
-            // Vider tous les champs du formulaire
-            document.querySelectorAll('input[type="text"]').forEach(i=>i.value='');
-            document.querySelectorAll('textarea').forEach(i=>i.value='');
-            document.querySelectorAll('select').forEach(i=>i.value='');
-            document.querySelectorAll('input[type="radio"]').forEach(i=>i.checked=false);
-            updateScore();
-        }
-    }
-    // Ajout d'un bouton pour effacer les élèves dans le footer
+    // Suppression du bouton d'effacement des élèves dans le footer
     const footer = document.querySelector('.footer .grid2');
-    if (footer && !document.getElementById('btn-clear-eleves')) {
-        const btnClear = document.createElement('a');
-        btnClear.className = 'btn warn';
-        btnClear.id = 'btn-clear-eleves';
-        btnClear.textContent = 'Effacer élèves';
-        btnClear.href = '#';
-        btnClear.addEventListener('click', (e) => { e.preventDefault(); clearEleves(); });
-        footer.appendChild(btnClear);
+    if (footer) {
+        const btnClear = document.getElementById('btn-clear-eleves');
+        if (btnClear) btnClear.remove();
     }
 </script>
 </body>
