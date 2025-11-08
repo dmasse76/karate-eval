@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Évaluation technique</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0b1120;
+      color: #fff;
+      margin: 1rem;
+      max-width: 600px;
+      margin-inline: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.6rem;
+      margin: 0.3rem 0 1rem 0;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #111827;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    .buttons button {
+      background: #1f2937;
+      color: white;
+      border: 1px solid #374151;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      margin: 0.2rem;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+
+    .buttons button.active {
+      background: linear-gradient(to right, #22c55e, #3b82f6);
+    }
+
+    .score {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.3rem;
+      margin-top: 1.5rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 20px;
+      background: #1f2937;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #ef4444, #f59e0b, #22c55e);
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <h1>Évaluation technique</h1>
+
+  <div class="section">
+    <label>Nom du candidat :</label>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <select id="eleve" style="flex:1">
+        <option value="">— Sélectionner —</option>
+      </select>
+      <button id="add-eleve" title="Ajouter un élève" style="padding:0.5rem 0.8rem;font-size:1.2rem;">+</button>
+    </div>
+    <input id="new-eleve" type="text" placeholder="Nom du nouvel élève" style="display:none;margin-top:0.5rem;" />
+    <label>Évaluateur / trice :</label>
+    <input id="eval" type="text" placeholder="Votre nom" />
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="score">
+    Score total : <span id="total">0</span>/100
+    <div class="progress-container">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+  </div>
+
+  <script>
+    const questionsTemplate = [
+      { id: 'q1', titre: 'Kihon – Bases techniques', poids: 0.2 },
+      { id: 'q2', titre: 'Kata – Exécution', poids: 0.25 },
+      { id: 'q3', titre: 'Kumite – Application', poids: 0.25 },
+      { id: 'q4', titre: 'Bunkai', poids: 0.15 },
+      { id: 'q5', titre: 'Jiu Jitsu', poids: 0.15 }
+    ];
+    let questions = [];
+
+    const container = document.getElementById('questions');
+    const totalEl = document.getElementById('total');
+    const progressEl = document.getElementById('progress');
+    const eleveSelect = document.getElementById('eleve');
+    const addEleveBtn = document.getElementById('add-eleve');
+    const newEleveInput = document.getElementById('new-eleve');
+    const evalInput = document.getElementById('eval');
+
+    // Gestion des élèves dynamiques
+    function getEleves() {
+      return JSON.parse(localStorage.getItem('eleves') || '[]');
+    }
+    function setEleves(list) {
+      localStorage.setItem('eleves', JSON.stringify(list));
+    }
+    function refreshEleveList() {
+      const eleves = getEleves();
+      eleveSelect.innerHTML = '<option value="">— Sélectionner —</option>' + eleves.map(n => `<option>${n}</option>`).join('');
+    }
+    addEleveBtn.onclick = () => {
+      newEleveInput.style.display = 'block';
+      newEleveInput.focus();
+    };
+    newEleveInput.onkeydown = e => {
+      if (e.key === 'Enter') {
+        const nom = newEleveInput.value.trim();
+        if (nom && !getEleves().includes(nom)) {
+          const list = getEleves();
+          list.push(nom);
+          setEleves(list);
+          refreshEleveList();
+          eleveSelect.value = nom;
+          eleveSelect.dispatchEvent(new Event('change'));
+        }
+        newEleveInput.value = '';
+        newEleveInput.style.display = 'none';
+      } else if (e.key === 'Escape') {
+        newEleveInput.value = '';
+        newEleveInput.style.display = 'none';
+      }
+    };
+    refreshEleveList();
+
+    // Génère les sections de questions
+    function renderQuestions() {
+      container.innerHTML = '';
+      questions.forEach((q, idx) => {
+        const div = document.createElement('div');
+        div.className = 'section';
+        div.innerHTML = `<strong>${q.titre}</strong><div class="buttons" id="${q.id}"></div>`;
+        container.appendChild(div);
+        const btns = div.querySelector('.buttons');
+        for (let i = 1; i <= 5; i++) {
+          const b = document.createElement('button');
+          b.textContent = i;
+          b.onclick = () => {
+            btns.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            questions[idx].valeur = i;
+            saveEvaluation();
+            calculer();
+          };
+          btns.appendChild(b);
+        }
+      });
+    }
+
+    // Sauvegarde/charge l'évaluation pour l'élève/évaluateur courant
+    function getKey() {
+      const eleve = eleveSelect.value;
+      const evaluateur = evalInput.value.trim();
+      return eleve && evaluateur ? `eval_${eleve}_${evaluateur}` : null;
+    }
+    function saveEvaluation() {
+      const key = getKey();
+      if (!key) return;
+      const data = questions.map(q => q.valeur || null);
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+    function loadEvaluation() {
+      // Toujours repartir d'une copie propre du template
+      questions = questionsTemplate.map(q => ({ ...q }));
+      const key = getKey();
+      if (key) {
+        const data = JSON.parse(localStorage.getItem(key) || 'null');
+        if (Array.isArray(data)) {
+          data.forEach((v, i) => { if (v) questions[i].valeur = v; });
+        }
+      }
+      renderQuestions();
+      // Met à jour l'affichage des boutons
+      questions.forEach((q, i) => {
+        const btns = document.getElementById(q.id);
+        if (btns) {
+          btns.querySelectorAll('button').forEach((b, idx) => {
+            b.classList.toggle('active', q.valeur === idx + 1);
+          });
+        }
+      });
+      calculer();
+    }
+
+    eleveSelect.onchange = loadEvaluation;
+    evalInput.oninput = loadEvaluation;
+
+    // Initialisation
+    loadEvaluation();
+
+    // Calcule le total et met à jour la barre
+    function calculer() {
+      let total = 0;
+      questions.forEach(q => {
+        if (q.valeur) total += (q.valeur / 5) * 100 * q.poids;
+      });
+      totalEl.textContent = total.toFixed(1);
+      progressEl.style.width = `${total}%`;
+      if (total < 50) progressEl.style.background = '#ef4444';
+      else if (total < 75) progressEl.style.background = '#f59e0b';
+      else progressEl.style.background = '#22c55e';
+    }
+
+    // Pour la future exportation Google Sheets
+    function exporterGoogleSheets() {
+      // À implémenter : envoyer les données à un backend ou Google Apps Script
+      alert('Fonction d’export à Google Sheets à venir.');
+    }
+  </script>
+</body>
+</html>
