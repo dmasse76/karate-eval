@@ -1,0 +1,57 @@
+{
+  "categories": [
+    {
+      "key": "geri",
+      "title": "Kihon | Geri-Waza",
+      "help": "Techniques de pied",
+      "subTechniques": [
+        "Technique 1",
+        "Technique 2",
+        "Appréciation Générale"
+      ]
+    },
+    {
+      "key": "uke",
+      "title": "Kihon | Uke-Waza",
+      "help": "Technique de blocage",
+      "subTechniques": [
+        "Technique 1",
+        "Technique 2",
+        "Technique 3",
+        "Technique 4",
+        "Technique 5",
+        "Appréciation Générale"
+      ]
+    },
+    {
+      "key": "uchi",
+      "title": "Kihon | Uchi-Waza",
+      "help": "Technique de frappe",
+      "subTechniques": [
+        "Technique 1",
+        "Appréciation Générale"
+      ]
+    },
+    {
+      "key": "kata",
+      "title": "Kata",
+      "help": "Kata Blanche",
+      "subTechniques": [
+        "Heian Shodan",
+        "Ni-ju-Hichi-Ko"
+      ]
+    },
+    {
+      "key": "att",
+      "title": "Attitude & Do",
+      "help": "Attitude & Do",
+      "subTechniques": [
+        "Kime",
+        "Conditionnement",
+        "Attitude",
+        "Respect"
+      ]
+    }
+  ]
+}
+
