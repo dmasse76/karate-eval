@@ -52,6 +52,60 @@
             border: 1.5px solid #233147;
             box-shadow: 0 2px 12px rgba(30,41,59,0.08);
         }
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+            align-items: end;
+            margin-top: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            background: #0b1220;
+            color: var(--text);
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 4px rgba(56,189,248,.15);
+        }
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 36px;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        .kbadge {
+            display: inline-block;
+            padding: 2px 6px;
+            border: 1px solid #1f2937;
+            border-radius: 999px;
+            margin-left: 6px;
+            color: #a3e635;
+            background: #052e1a;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .muted {
+            color: var(--muted);
+            font-size: 0.9em;
+        }
         table {
             border-collapse: collapse;
             margin: 1.5em auto 2.5em auto;
@@ -94,61 +148,9 @@
             transition: color 0.18s, transform 0.18s;
             filter: drop-shadow(0 1px 2px #0006);
         }
-        .star.filled {
-            color: var(--accent-2);
-            text-shadow: 0 2px 8px #f59e0b44;
-            transform: scale(1.13);
-        }
-        .star:hover,
-        .star.hovered {
-            color: #f1c40f;
-            transform: scale(1.18);
-        }
-        .table-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 2em;
-        }
-        .muted {
-            color: var(--muted);
-            font-size: 0.9em;
-        }
-        .grid2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            width: 100%;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        input, select {
-            width: 100%;
-            background: #0b1220;
-            color: var(--text);
-            border: 1px solid #1f2937;
-            border-radius: 12px;
-            padding: 10px 12px;
-            font-size: 1em;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--ring);
-            box-shadow: 0 0 0 4px rgba(56,189,248,.15);
-        }
-        .kbadge {
-            display: inline-block;
-            padding: 2px 6px;
-            border: 1px solid #1f2937;
-            border-radius: 999px;
-            margin-left: 6px;
-            color: #a3e635;
-            background: #052e1a;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+        .star.filled { color: var(--accent-2); text-shadow: 0 2px 8px #f59e0b44; transform: scale(1.13); }
+        .star:hover, .star.hovered { color: #f1c40f; transform: scale(1.18); }
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 2em; }
     </style>
 </head>
 <body>
@@ -167,7 +169,7 @@
                     <input id="date" type="date" value="2025-11-09" />
                 </div>
             </div>
-            <div class="grid2" style="margin-top:10px;">
+            <div class="grid2" style="margin-top:16px;">
                 <div>
                     <label for="level">Niveau</label>
                     <select id="level">
@@ -186,6 +188,7 @@
         <div id="tables-container"></div>
     </div>
 </div>
+
 <script>
     const categories = [
         { name: 'Kihon – Geri-Waza', techniques: ["Technique 1", "Technique 2", "Technique 3", "Appréciation Générale"] },
