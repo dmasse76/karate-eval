@@ -1,16 +1,13 @@
 {
   "eleves": [
-    "Daniel",
-    "Johnny",
-    "Kris",
-    "Extra 1",
-    "Extra 2",
-    "Extra 3"
+    "Jean Dupont",
+    "Marie Curie",
+    "Sophie Martin"
   ],
   "categories": [
     {
       "key": "geri",
-      "title": "Kihon|Geri-Waza",
+      "title": "Kihon | Geri-Waza",
       "help": "Techniques de pied",
       "subTechniques": [
         "Technique 1",
@@ -21,7 +18,7 @@
     },
     {
       "key": "uchi",
-      "title": "Kihon|Uchi-Waza",
+      "title": "Kihon | Uchi-Waza",
       "help": "Technique de frappe",
       "subTechniques": [
         "Technique 1",
@@ -31,7 +28,7 @@
     },
     {
       "key": "ippon-kumite",
-      "title": "Kihon|Ippon-Kumite",
+      "title": "Kihon | Ippon-Kumite",
       "help": "Techniques sur attaque",
       "subTechniques": [
         "Technique 1",
@@ -100,6 +97,17 @@
         "Combat 3",
         "Combat 4",
         "Appréciation Générale"
+      ]
+    },
+    {
+      "key": "att",
+      "title": "Attitude & Do",
+      "help": "Attitude & Do",
+      "subTechniques": [
+        "Kime",
+        "Conditionnement",
+        "Attitude",
+        "Respect"
       ]
     }
   ]
