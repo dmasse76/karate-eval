@@ -112,7 +112,7 @@
             background: linear-gradient(180deg,rgba(17,24,39,0.92),rgba(11,18,32,0.90));
             box-shadow: 0 2px 16px rgba(0,0,0,0.13);
             border-radius: 16px;
-            overflow: hidden;
+            background-clip: padding-box; /* garde les coins arrondis */
             min-width: 420px;
         }
         th, td {
@@ -164,7 +164,12 @@
         }
         .star.filled { color: var(--accent-2); text-shadow: 0 2px 8px #f59e0b44; transform: scale(1.13); }
         .star:hover, .star.hovered { color: #f1c40f; transform: scale(1.18); }
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 2em; }
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 2em;
+            position: relative;
+        }
     </style>
 </head>
 <body>
