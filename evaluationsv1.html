@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Évaluation Karaté - Version Tableau</title>
+    <style>
+        :root{
+            --bg:#0f172a;
+            --card:#111827;
+            --muted:#94a3b8;
+            --text:#e5e7eb;
+            --accent:#22c55e;
+            --accent-2:#f59e0b;
+            --danger:#ef4444;
+            --btn:#1f2937;
+            --ring:#38bdf8;
+        }
+        html,body{height:100%}
+        body{
+            margin:0;
+            background:
+                    linear-gradient(180deg,rgba(15,23,42,0.80) 60%,rgba(2,6,23,0.92) 100%),
+                    url('shinden-ryu-logo.png') center 140px/320px no-repeat,
+                    linear-gradient(180deg,var(--bg),#020617);
+            color:var(--text);
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+            -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+        }
+        .wrap {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 96px;
+        }
+        h1{font-size:1.35rem;margin:8px 0 2px;text-align:center;letter-spacing:0.01em;}
+        h2{font-size:1.1rem;margin:28px 0 12px;color:var(--accent);letter-spacing:0.01em;}
+        .card {
+            background: linear-gradient(180deg, var(--card), #0b1220);
+            border: 1px solid #1f2937;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            margin: 0 auto 32px auto;
+        }
+        .cat-section {
+            margin: 28px 0 32px 0;
+            padding: 18px 12px 12px 12px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #1e293b 80%, #0b1220 100%);
+            border: 1.5px solid #233147;
+            box-shadow: 0 2px 12px rgba(30,41,59,0.08);
+        }
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+            align-items: end;
+            margin-top: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            background: #0b1220;
+            color: var(--text);
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 4px rgba(56,189,248,.15);
+        }
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 36px;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        .kbadge {
+            display: inline-block;
+            padding: 2px 6px;
+            border: 1px solid #1f2937;
+            border-radius: 999px;
+            margin-left: 6px;
+            color: #a3e635;
+            background: #052e1a;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .muted {
+            color: var(--muted);
+            font-size: 0.9em;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 2em auto 2.5em auto;
+            background: linear-gradient(180deg,rgba(17,24,39,0.92),rgba(11,18,32,0.90));
+            box-shadow: 0 2px 16px rgba(0,0,0,0.13);
+            border-radius: 16px;
+            background-clip: padding-box; /* garde les coins arrondis */
+            min-width: 420px;
+        }
+        th, td {
+            border: 1px solid #233147;
+            padding: 0.7em 1.2em;
+            text-align: center;
+        }
+        th {
+            background: #1e293b;
+            color: var(--accent-2);
+            font-weight: 700;
+            font-size: 1.05em;
+        }
+        td {
+            background: rgba(17,24,39,0.85);
+            color: var(--text);
+        }
+        td:first-child {
+            font-weight: 600;
+            color: var(--accent);
+            background: #0b1220;
+        }
+        /* Colonne fixe (noms des élèves) avec ombrage à droite */
+        table th:first-child,
+        table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: #0b1220;
+            box-shadow: 4px 0 6px rgba(0,0,0,0.35);
+        }
+        table th:first-child {
+            z-index: 3;
+            background: #1e293b;
+            box-shadow: 4px 0 8px rgba(0,0,0,0.45);
+        }
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.2em;
+        }
+        .star {
+            font-size: 1.6em;
+            color: #334155;
+            cursor: pointer;
+            transition: color 0.18s, transform 0.18s;
+            filter: drop-shadow(0 1px 2px #0006);
+        }
+        .star.filled { color: var(--accent-2); text-shadow: 0 2px 8px #f59e0b44; transform: scale(1.13); }
+        .star:hover, .star.hovered { color: #f1c40f; transform: scale(1.18); }
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 2em;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1>Évaluation technique <span class="kbadge">Mobile</span></h1>
+        <p class="muted">Saisie rapide pour passage de grade (hors-ligne). Les données restent sur votre téléphone.</p>
+        <form id="infos-form" autocomplete="off">
+            <div class="grid2">
+                <div>
+                    <label for="evaluator">Évaluateur / trice</label>
+                    <input id="evaluator" type="text" placeholder="Votre nom" autocomplete="name" />
+                </div>
+                <div>
+                    <label for="date">Date</label>
+                    <input id="date" type="date" value="2025-11-09" />
+                </div>
+            </div>
+            <div class="grid2" style="margin-top:16px;">
+                <div>
+                    <label for="level">Niveau</label>
+                    <select id="level">
+                        <option value="">— Sélectionner —</option>
+                        <option>Brune</option>
+                        <option>Noire</option>
+                        <option>Bleue</option>
+                        <option>Verte</option>
+                        <option>Orange</option>
+                        <option>Jaune</option>
+                        <option>Blanche</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div id="tables-container"></div>
+    </div>
+</div>
+
+<script>
+    const categories = [
+        { name: 'Kihon – Geri-Waza', techniques: ["Technique 1", "Technique 2", "Technique 3", "Appréciation Générale"] },
+        { name: 'Kihon – Uchi-Waza', techniques: ["Technique 1", "Technique 2", "Appréciation Générale"] },
+        { name: 'Kihon – Ippon-Kumite', techniques: ["Technique 1", "Technique 2", "Technique 3", "Technique 4", "Technique 5", "Technique 6", "Appréciation Générale"] },
+        { name: 'Jiu-Jitsu', techniques: ["Technique 1", "Technique 2", "Appréciation Générale"] },
+        { name: 'Bunkai', techniques: ["Technique 1 | Niseishi Dai", "Technique 2 | Niseishi Dai", "Technique 3 | Niseishi Dai", "Technique 4 | Heian Godan", "Technique 5 | Heian Godan", "Appréciation Générale"] },
+        { name: 'Kata – Shotokan', techniques: ["Heian Shodan", "Heian Nidan", "Heian Shodan", "Heian Yodan", "Heian Godan"] },
+        { name: 'Kata – Chitu-Ryu', techniques: ["Shiho Hai", "Rohai Sho", "Tenshin", "Niseishi Dai", "Tensho"] },
+        { name: 'Combat', techniques: ["Combat 1", "Combat 2", "Combat 3", "Combat 4", "Appréciation Générale"] }
+    ];
+    const eleves = ["Daniel", "Johnny", "Kris", "Extra 1", "Extra 2", "Extra 3"];
+
+    const container = document.getElementById('tables-container');
+    container.innerHTML = '';
+    categories.forEach(cat => {
+        const section = document.createElement('section');
+        section.className = 'cat-section';
+        const title = document.createElement('h2');
+        title.textContent = cat.name;
+        section.appendChild(title);
+
+        const scrollDiv = document.createElement('div');
+        scrollDiv.className = 'table-scroll';
+        const table = document.createElement('table');
+
+        const thead = document.createElement('thead');
+        const trHead = document.createElement('tr');
+        trHead.appendChild(document.createElement('th'));
+        cat.techniques.forEach(tech => {
+            const th = document.createElement('th');
+            th.textContent = tech;
+            trHead.appendChild(th);
+        });
+        thead.appendChild(trHead);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        eleves.forEach(eleve => {
+            const tr = document.createElement('tr');
+            const tdName = document.createElement('td');
+            tdName.textContent = eleve;
+            tr.appendChild(tdName);
+
+            cat.techniques.forEach(() => {
+                const td = document.createElement('td');
+                const starDiv = document.createElement('div');
+                starDiv.className = 'star-rating';
+                for (let i = 1; i <= 4; i++) {
+                    const star = document.createElement('span');
+                    star.className = 'star';
+                    star.innerHTML = '★';
+                    star.dataset.value = i;
+                    star.addEventListener('mouseenter', () => highlightStars(starDiv, i));
+                    star.addEventListener('mouseleave', () => resetStars(starDiv));
+                    star.addEventListener('click', () => setRating(starDiv, i));
+                    starDiv.appendChild(star);
+                }
+                td.appendChild(starDiv);
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        scrollDiv.appendChild(table);
+        section.appendChild(scrollDiv);
+        container.appendChild(section);
+    });
+
+    function highlightStars(starDiv, count) {
+        const stars = starDiv.querySelectorAll('.star');
+        stars.forEach((star, idx) => {
+            if (idx < count) star.classList.add('hovered'); else star.classList.remove('hovered');
+        });
+    }
+    function resetStars(starDiv) {
+        starDiv.querySelectorAll('.star').forEach(star => star.classList.remove('hovered'));
+    }
+    function setRating(starDiv, count) {
+        starDiv.querySelectorAll('.star').forEach((star, idx) => {
+            if (idx < count) star.classList.add('filled'); else star.classList.remove('filled');
+        });
+    }
+</script>
+</body>
+</html>
