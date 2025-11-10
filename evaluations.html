@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Évaluation technique - Dojo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #fafafa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #222;
+        }
+        section {
+            margin-bottom: 40px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 6px;
+        }
+        th {
+            background: #f4b084;
+            color: #000;
+        }
+        td:first-child {
+            font-weight: 600;
+            background: #fdf5f0;
+        }
+        .star {
+            cursor: pointer;
+            font-size: 22px;
+            color: #ccc;
+            transition: color 0.2s;
+        }
+        .star.filled {
+            color: gold;
+        }
+        .star.hovered {
+            color: orange;
+        }
+        .star-rating {
+            display: inline-block;
+        }
+        .table-scroll {
+            overflow-x: auto;
+        }
+        .form-header {
+            margin: 0 auto 25px;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-header label {
+            display: inline-block;
+            width: 130px;
+            font-weight: 600;
+        }
+        input, select {
+            padding: 6px;
+            font-size: 15px;
+            margin-bottom: 10px;
+            width: calc(100% - 150px);
+        }
+        .submit-btn {
+            display: block;
+            margin: 25px auto;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background: #0056b3;
+        }
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Évaluation technique Mobile – Dojo</h1>
+
+<div class="form-header">
+    <label>Évaluateur :</label>
+    <input type="text" id="evaluateur" placeholder="Nom de l'évaluateur"><br>
+
+    <label>Date :</label>
+    <input type="date" id="date"><br>
+
+    <label>Niveau :</label>
+    <select id="niveau">
+        <option value="">— Sélectionner —</option>
+        <option>Brune</option>
+        <option>Noire</option>
+        <option>Bleue</option>
+        <option>Verte</option>
+        <option>Orange</option>
+        <option>Jaune</option>
+        <option>Blanche</option>
+    </select>
+</div>
+
+<div id="tables-container">
+    <p class="loading">Chargement de la liste des élèves...</p>
+</div>
+
+<button class="submit-btn" onclick="soumettre()">Soumettre</button>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPOkBb90iX_lb7UF1YRPt0R2cnifSp3rASt2m3_VU-WGlMT9Li88yEmiUGmv3-3OmYUg/exec";
+
+    // --- Catégories et techniques ---
+    const categories = [
+        { name: 'Kihon – Geri-Waza', techniques: ["Technique 1", "Technique 2", "Technique 3", "Appréciation Générale"] },
+        { name: 'Kihon – Uchi-Waza', techniques: ["Technique 1", "Technique 2", "Appréciation Générale"] },
+        { name: 'Kihon – Ippon-Kumite', techniques: ["Technique 1", "Technique 2", "Technique 3", "Technique 4", "Technique 5", "Technique 6", "Appréciation Générale"] },
+        { name: 'Jiu-Jitsu', techniques: ["Technique 1", "Technique 2", "Appréciation Générale"] },
+        { name: 'Bunkai', techniques: ["Technique 1 | Niseishi Dai", "Technique 2 | Niseishi Dai", "Technique 3 | Niseishi Dai", "Technique 4 | Heian Godan", "Technique 5 | Heian Godan", "Appréciation Générale"] },
+        { name: 'Kata – Shotokan', techniques: ["Heian Shodan", "Heian Nidan", "Heian Sandan", "Heian Yodan", "Heian Godan"] },
+        { name: 'Kata – Chitu-Ryu', techniques: ["Shiho Hai", "Rohai Sho", "Tenshin", "Niseishi Dai", "Tensho"] },
+        { name: 'Combat', techniques: ["Combat 1", "Combat 2", "Combat 3", "Combat 4", "Appréciation Générale"] }
+    ];
+
+    // --- Charger les élèves dynamiquement depuis Google Sheet ---
+    let eleves = [];
+    async function chargerEleves() {
+        const container = document.getElementById('tables-container');
+        container.innerHTML = '<p class="loading">Chargement de la liste des élèves...</p>';
+
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL);
+            eleves = await response.json();
+            genererTables();
+        } catch (err) {
+            container.innerHTML = '<p class="loading">Erreur lors du chargement des élèves.</p>';
+            console.error(err);
+        }
+    }
+
+    function genererTables() {
+        const container = document.getElementById('tables-container');
+        container.innerHTML = '';
+
+        categories.forEach(cat => {
+            const section = document.createElement('section');
+            const title = document.createElement('h2');
+            title.textContent = cat.name;
+            section.appendChild(title);
+
+            const scrollDiv = document.createElement('div');
+            scrollDiv.className = 'table-scroll';
+            const table = document.createElement('table');
+
+            const thead = document.createElement('thead');
+            const trHead = document.createElement('tr');
+            trHead.appendChild(document.createElement('th'));
+            cat.techniques.forEach(tech => {
+                const th = document.createElement('th');
+                th.textContent = tech;
+                trHead.appendChild(th);
+            });
+            thead.appendChild(trHead);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            eleves.forEach(eleve => {
+                const tr = document.createElement('tr');
+                const tdName = document.createElement('td');
+                tdName.textContent = eleve;
+                tr.appendChild(tdName);
+
+                cat.techniques.forEach(() => {
+                    const td = document.createElement('td');
+                    const starDiv = document.createElement('div');
+                    starDiv.className = 'star-rating';
+                    for (let i = 1; i <= 4; i++) {
+                        const star = document.createElement('span');
+                        star.className = 'star';
+                        star.innerHTML = '★';
+                        star.dataset.value = i;
+                        star.addEventListener('mouseenter', () => highlightStars(starDiv, i));
+                        star.addEventListener('mouseleave', () => resetStars(starDiv));
+                        star.addEventListener('click', () => setRating(starDiv, i));
+                        starDiv.appendChild(star);
+                    }
+                    td.appendChild(starDiv);
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            scrollDiv.appendChild(table);
+            section.appendChild(scrollDiv);
+            container.appendChild(section);
+        });
+    }
+
+    function highlightStars(starDiv, count) {
+        starDiv.querySelectorAll('.star').forEach((star, idx) => {
+            if (idx < count) star.classList.add('hovered');
+            else star.classList.remove('hovered');
+        });
+    }
+    function resetStars(starDiv) {
+        starDiv.querySelectorAll('.star').forEach(star => star.classList.remove('hovered'));
+    }
+    function setRating(starDiv, count) {
+        starDiv.querySelectorAll('.star').forEach((star, idx) => {
+            if (idx < count) star.classList.add('filled');
+            else star.classList.remove('filled');
+        });
+    }
+
+    function soumettre() {
+        const evaluateur = document.getElementById('evaluateur').value.trim();
+        const date = document.getElementById('date').value;
+        const niveau = document.getElementById('niveau').value;
+
+        if (!evaluateur || !date || !niveau) {
+            alert("Veuillez remplir l’évaluateur, la date et le niveau.");
+            return;
+        }
+
+        const elevesNotes = eleves.map(eleve => {
+            const notes = [];
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                if (row.firstChild.textContent === eleve) {
+                    const stars = row.querySelectorAll('.star-rating');
+                    stars.forEach(div => {
+                        const filled = div.querySelectorAll('.star.filled').length;
+                        notes.push(filled || 0);
+                    });
+                }
+            });
+            return { eleve, notes };
+        });
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                evaluateur,
+                date,
+                niveau,
+                categories,
+                eleves: elevesNotes
+            })
+        })
+            .then(res => res.json())
+            .then(() => alert("Résultats envoyés avec succès !"))
+            .catch(err => alert("Erreur : " + err));
+    }
+
+    // Charger la liste d’élèves dès le début
+    chargerEleves();
+</script>
+
+</body>
+</html>
