@@ -5,6 +5,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Remplace ces placeholders par les valeurs de ton projet Supabase
 const SUPABASE_URL = 'https://gcdruwruygjclvszgerc.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_NPo8JYU8do60kvTzt_3Wbw_vI3O2DEU' // Safe for browser - RLS activate
+
+//const SUPABASE_URL = 'http://127.0.0.1:54321'
+//const SUPABASE_ANON_KEY = 'sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz'
 // IMPORTANT: ne mets jamais de service_role key dans ce fichier public
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -64,16 +67,16 @@ async function loadProgramDetails(programId){
     if(eleves.length) renderTables()
 }
 
-// Charge élèves d'une promotion via students_promotions -> students(name)
+// Charge élèves d'une promotion via students_promotions -> students(id, name)
 async function loadStudents(promotionId){
     if(!promotionId) return
     tablesContainer.innerHTML = '<p class="loading">Chargement des élèves…</p>'
     const { data, error } = await supabase
         .from('students_promotions')
-        .select('student:students(name)')
+        .select('student:students(id,name)')
         .eq('promotion_id', promotionId)
     if(error){ console.error('loadStudents', error); tablesContainer.innerHTML = '<p class="loading">Erreur en chargeant élèves</p>'; return }
-    eleves = data.map(link => link.student.name)
+    eleves = data.map(link => link.student) // [{id, name}]
     if(currentProgram) renderTables()
     else tablesContainer.innerHTML = '<p class="loading">Sélectionne un programme.</p>'
 }
@@ -109,11 +112,10 @@ function renderTables(){
             const tbody = document.createElement('tbody')
             eleves.forEach(eleve => {
                 const tr = document.createElement('tr')
-                const tdName = document.createElement('td'); tdName.textContent = eleve; tr.appendChild(tdName)
-                cat.techniques.forEach(() => {
+                const tdName = document.createElement('td'); tdName.textContent = eleve.name; tr.appendChild(tdName)
+                cat.techniques.forEach(tech => {
                     const td = document.createElement('td')
-                    const starDiv = createStarDiv() // reusable
-                    td.appendChild(starDiv)
+                    td.appendChild(createStarDiv(cat.id, tech.id, eleve.id))
                     tr.appendChild(td)
                 })
                 tbody.appendChild(tr)
@@ -126,10 +128,10 @@ function renderTables(){
                 const techDiv = document.createElement('div'); techDiv.className = 'accordion-tech'; techDiv.textContent = tech.name || tech
                 const content = document.createElement('div'); content.className = 'accordion-content'
                 // students inside
-                eleves.forEach(e => {
+                eleves.forEach(eleve => {
                     const row = document.createElement('div'); row.className = 'accordion-row'
-                    const nameDiv = document.createElement('div'); nameDiv.className = 'accordion-student'; nameDiv.textContent = e
-                    const starDiv = createStarDiv()
+                    const nameDiv = document.createElement('div'); nameDiv.className = 'accordion-student'; nameDiv.textContent = eleve.name
+                    const starDiv = createStarDiv(cat.id, tech.id, eleve.id)
                     row.appendChild(nameDiv); row.appendChild(starDiv)
                     content.appendChild(row)
                 })
@@ -147,18 +149,33 @@ function renderTables(){
     })
 }
 
+// Ajout d'un objet global pour stocker les notes temporaires
+const ratings = {}
+
+// Helper pour générer une clé unique
+function ratingKey(studentId, catId, techId) {
+    return `${studentId}_${catId}_${techId}`
+}
+
 // Helper: crée un div d'étoiles interactive (non-persistée)
-function createStarDiv(){
+function createStarDiv(catId, techId, eleveId){
     const starDiv = document.createElement('div')
     starDiv.className = 'star-rating'
+    if (catId) starDiv.setAttribute('data-cat', catId)
+    if (techId) starDiv.setAttribute('data-tech', techId)
+    if (eleveId) starDiv.setAttribute('data-eleve', eleveId)
+    // Appliquer le score déjà saisi si présent
+    const key = ratingKey(eleveId, catId, techId);
+    const filledCount = ratings[key] || 0;
     for(let i=1;i<=4;i++){
         const star = document.createElement('span')
         star.className = 'star'
         star.innerHTML = '★'
         star.dataset.value = i
+        if(i <= filledCount) star.classList.add('filled');
         star.addEventListener('mouseenter', ()=> highlightStars(starDiv, i))
         star.addEventListener('mouseleave', ()=> resetStars(starDiv))
-        star.addEventListener('click', ()=> setRating(starDiv, i))
+        star.addEventListener('click', ()=> setRating(starDiv, i, eleveId, catId, techId))
         starDiv.appendChild(star)
     }
     return starDiv
@@ -170,9 +187,85 @@ function highlightStars(div, count){
 function resetStars(div){
     div.querySelectorAll('.star').forEach(s => s.classList.remove('hovered'))
 }
-function setRating(div, count){
+// setRating: met à jour ratings et l'affichage
+function setRating(div, count, eleveId, catId, techId){
     div.querySelectorAll('.star').forEach((s, idx) => s.classList.toggle('filled', idx < count))
+    // Mettre à jour ratings
+    if(eleveId && catId && techId) {
+        ratings[ratingKey(eleveId, catId, techId)] = count;
+    }
 }
+
+// Ajout du bouton Sauvegarder si absent
+function ensureSaveButton(){
+    if (!document.getElementById('saveBtn')) {
+        const saveBtn = document.createElement('button')
+        saveBtn.textContent = 'Sauvegarder'
+        saveBtn.className = 'submit-btn'
+        saveBtn.id = 'saveBtn'
+        document.querySelector('.wrap .card').appendChild(saveBtn)
+    }
+}
+ensureSaveButton();
+
+// Ajout de l'eventListener pour la sauvegarde
+const saveBtn = document.getElementById('saveBtn')
+saveBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const evaluator = document.getElementById('evaluator').value;
+    const date = document.getElementById('date').value;
+    const programId = programSelect.value;
+    if(!evaluator || !date || !programId) {
+        alert('Veuillez remplir nom, date et programme.');
+        return;
+    }
+    const evaluations = [];
+    if(!currentProgram || !eleves.length) {
+        alert('Aucune donnée à sauvegarder.');
+        return;
+    }
+    currentProgram.forEach(cat => {
+        cat.techniques.forEach(tech => {
+            eleves.forEach(eleve => {
+                // Utiliser ratings si présent, sinon compter les étoiles dans le DOM (pour compatibilité)
+                const key = ratingKey(eleve.id, cat.id, tech.id);
+                const score = ratings[key] !== undefined
+                    ? ratings[key]
+                    : (() => {
+                        const starDiv = document.querySelector(
+                            `.star-rating[data-cat="${cat.id}"][data-tech="${tech.id}"][data-eleve="${eleve.id}"]`
+                        );
+                        return starDiv ? [...starDiv.children].filter(s => s.classList.contains('filled')).length : 0;
+                    })();
+                evaluations.push({
+                    student_id: eleve.id,
+                    program_id: programId,
+                    category_id: cat.id,
+                    technique_id: tech.id,
+                    evaluator_name: evaluator,
+                    score,
+                    evaluated_at: date
+                });
+            });
+        });
+    });
+    if (!evaluations.length) {
+        alert("Aucune évaluation à sauvegarder.");
+        return;
+    }
+    try {
+        const { error } = await supabase
+            .from('evaluations')
+            .upsert(evaluations, {
+                onConflict: ['student_id', 'program_id', 'category_id', 'technique_id', 'evaluator_name']
+            });
+        if (error) throw error;
+        alert("Évaluations sauvegardées avec succès !");
+    } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la sauvegarde.");
+    }
+});
 
 // EVENTS
 programSelect.addEventListener('change', e => loadProgramDetails(e.target.value))

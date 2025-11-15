@@ -110,3 +110,4 @@ CREATE TRIGGER trg_validate_weights
     AFTER INSERT OR UPDATE ON categories
                         FOR EACH ROW
                         EXECUTE FUNCTION validate_program_weights();
+
