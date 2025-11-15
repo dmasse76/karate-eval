@@ -72,3 +72,37 @@ table th:first-child{z-index:3;background:#1e293b;box-shadow:4px 0 8px rgba(0,0,
     .grid2{grid-template-columns:1fr}
     table{min-width:600px}
 }
+
+/* --- Highlights de lignes d'évaluation --- */
+.row-green td {
+    background-color: #3fbf4c !important;   /* vert saturé */
+    color: #0b1220;                        /* texte lisible sur vert */
+}
+
+.row-yellow td {
+    background-color: #f5d13d !important;   /* jaune vif */
+    color: #0b1220;                        /* texte lisible sur jaune */
+}
+
+.row-red td {
+    background-color: #ff4d4d !important;   /* rouge vif */
+    color: #fff;                             /* texte blanc sur rouge */
+}
+
+/* Bordure gauche colorée pour accent */
+.row-green td:first-child,
+.row-yellow td:first-child,
+.row-red td:first-child {
+    border-left: 6px solid currentColor;
+}
+
+/* Transition douce pour changement de highlight */
+table tr td {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Supprimer le background par défaut des cellules pour que la couleur de la row soit visible */
+table tbody tr td {
+    background: transparent;
+}
+
