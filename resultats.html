@@ -21,7 +21,7 @@
 
         <div id="legend" style="margin-top:14px; display:flex; gap:14px; justify-content:center; font-size:0.9rem;">
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(34,197,94,0.35);margin-right:4px;"></span>≥ 70 : Réussi</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(245,158,11,0.35);margin-right:4px;"></span>40–69 : À retravailler</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(245,158,11,0.35);margin-right:4px;"></span>40–69 : À débattre</div>
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(239,68,68,0.35);margin-right:4px;"></span>&lt; 40 : Échec</div>
         </div>
 
@@ -203,7 +203,7 @@
             badge.style.color = "#0b1220";
         } else if (avg >= 40) {
             row.classList.add("row-yellow");
-            badge.textContent = "À retravailler";
+            badge.textContent = "À débattre";
             badge.style.background = "#f5d13d33";
             badge.style.color = "#0b1220";
         } else {
