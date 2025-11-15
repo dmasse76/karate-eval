@@ -1,0 +1,11 @@
+{
+  "promotion": "Brune Automne 2025",
+  "program": "Ceinture Brune",
+  "students": [
+    { "name": "Daniel"},
+    { "name": "Johnny"},
+    { "name": "Kris"},
+    { "name": "Extra 1", "active": false },
+    { "name": "Extra 2" }
+  ]
+}
