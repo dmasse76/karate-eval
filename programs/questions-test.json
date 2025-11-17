@@ -1,0 +1,30 @@
+{
+  "name": "Programme de Test",
+  "description": "Formulaire d'évaluation de Test",
+  "version": "2025-11-15",
+  "categories": [
+    {
+      "key": "geri",
+      "title": "Kihon | Geri-Waza",
+      "help": "Techniques de pied",
+      "poid": "25",
+      "subTechniques": [
+        "Technique 1",
+        "Technique 2",
+        "Technique 3",
+        "Appréciation Générale"
+      ]
+    },
+    {
+      "key": "uchi",
+      "title": "Kihon | Uchi-Waza",
+      "help": "Technique de frappe",
+      "poid": "75",
+      "subTechniques": [
+        "Technique 1",
+        "Technique 2"
+      ]
+    }
+  ]
+}
+
