@@ -517,6 +517,49 @@
             animation: fadeIn 0.3s ease forwards;
         }
     </style>
+    <style>
+    /* --- Speech-to-Text Styles --- */
+    .speech-mic-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(76, 175, 80, 0.08);
+        border: 2px solid #c41e3a;
+        color: #333;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin-right: 4px;
+        transition: box-shadow 0.3s, border-color 0.3s, background 0.3s;
+        outline: none;
+        position: relative;
+        z-index: 1;
+    }
+    .speech-mic-btn.active {
+        background: #4caf50;
+        color: #fff;
+        border-color: #388e3c;
+        animation: mic-pulse 1.2s infinite;
+        box-shadow: 0 0 0 4px rgba(76,175,80,0.15);
+    }
+    @keyframes mic-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(76,175,80,0.25); }
+        70% { box-shadow: 0 0 0 8px rgba(76,175,80,0.05); }
+        100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.25); }
+    }
+    .note-textarea.speech-active {
+        border-color: #4caf50 !important;
+        box-shadow: 0 0 10px 2px #4caf50a0;
+        animation: border-pulse 1.2s infinite;
+    }
+    @keyframes border-pulse {
+        0% { box-shadow: 0 0 10px 2px #4caf50a0; }
+        70% { box-shadow: 0 0 16px 4px #4caf5050; }
+        100% { box-shadow: 0 0 10px 2px #4caf50a0; }
+    }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -816,6 +859,7 @@
             <button class="rating-btn" style="background:#2e7d32" onclick="setRating('${key}',4);return false;">Dépasse les attentes</button>
         </div>
         <div class="note-section">
+            <button class="speech-mic-btn" title="Dictée vocale" type="button" tabindex="0">🎤</button>
             <textarea
                 class="note-textarea"
                 placeholder="Commentaires..."
@@ -1038,6 +1082,85 @@
         }
     }
     window.toggleControls = toggleControls;
+
+    // --- Speech-to-Text Dictée Vocale ---
+    let activeRecognition = null;
+    let activeTextarea = null;
+    let activeMicBtn = null;
+    function setupSpeechToText() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+        document.querySelectorAll('.speech-mic-btn').forEach(btn => {
+            btn.onclick = async function(e) {
+                e.preventDefault();
+                const noteSection = btn.closest('.note-section');
+                const textarea = noteSection.querySelector('.note-textarea');
+                if (!textarea) return;
+                // Stop previous recognition if any
+                if (activeRecognition) {
+                    activeRecognition.stop();
+                    if (activeMicBtn) activeMicBtn.classList.remove('active');
+                    if (activeTextarea) activeTextarea.classList.remove('speech-active');
+                    activeRecognition = null;
+                    activeMicBtn = null;
+                    activeTextarea = null;
+                    // If clicking the same mic, just stop
+                    if (activeMicBtn === btn) return;
+                }
+                // Start new recognition
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    alert('La dictée vocale n\'est pas supportée sur ce navigateur.');
+                    return;
+                }
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'fr-FR';
+                recognition.interimResults = true;
+                recognition.continuous = true;
+                btn.classList.add('active');
+                textarea.classList.add('speech-active');
+                activeRecognition = recognition;
+                activeTextarea = textarea;
+                activeMicBtn = btn;
+                let finalTranscript = textarea.value || '';
+                recognition.onresult = function(event) {
+                    let interim = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interim += event.results[i][0].transcript;
+                        }
+                    }
+                    textarea.value = finalTranscript + interim;
+                    textarea.dispatchEvent(new Event('input'));
+                };
+                recognition.onerror = function(event) {
+                    btn.classList.remove('active');
+                    textarea.classList.remove('speech-active');
+                    activeRecognition = null;
+                    activeMicBtn = null;
+                    activeTextarea = null;
+                    if (event.error === 'not-allowed' || event.error === 'denied') {
+                        alert('Permission micro refusée.');
+                    }
+                };
+                recognition.onend = function() {
+                    btn.classList.remove('active');
+                    textarea.classList.remove('speech-active');
+                    activeRecognition = null;
+                    activeMicBtn = null;
+                    activeTextarea = null;
+                };
+                recognition.start();
+            };
+        });
+    }
+    // Appeler après chaque renderTabContent
+    const origRenderTabContent = renderTabContent;
+    renderTabContent = function(...args) {
+        origRenderTabContent.apply(this, args);
+        setTimeout(setupSpeechToText, 0);
+    }
 </script>
 </body>
 </html>
