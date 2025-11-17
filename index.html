@@ -520,41 +520,41 @@
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <button class="toggle-controls-btn hidden" id="toggleBtn" onclick="toggleControls()">⚙️</button>
-        <div class="header-content">
-            <h1>心伝流</h1>
-            <div class="subtitle">SHINDEN RYU</div>
-        </div>
-        <div style="width: 36px;"></div>
-    </div>
-
-    <div class="controls" id="controlsPanel">
-        <div class="control-group">
-            <label for="evaluatorInput">Évaluateur</label>
-            <input type="text" id="evaluatorInput" placeholder="Entrez votre nom..." />
-        </div>
-        <div class="control-group">
-            <label for="beltSelect">Programme de Ceinture</label>
-            <select id="beltSelect">
-                <option value="">Sélectionner...</option>
-                <!-- Les options dynamiques seront ajoutées par JS -->
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="promotionSelect">Promotion</label>
-            <select id="promotionSelect">
-                <option value="">Sélectionner...</option>
-                <!-- Les options dynamiques seront ajoutées par JS -->
-            </select>
-        </div>
-    </div>
-
-    <div class="tabs-container">
-        <div class="tabs" id="tabsContainer"></div>
-    </div>
-
     <div class="content-area">
+        <div class="header">
+            <button class="toggle-controls-btn hidden" id="toggleBtn" onclick="toggleControls()">⚙️</button>
+            <div class="header-content">
+                <h1>心伝流</h1>
+                <div class="subtitle">SHINDEN RYU</div>
+            </div>
+            <div style="width: 36px;"></div>
+        </div>
+
+        <div class="controls" id="controlsPanel">
+            <div class="control-group">
+                <label for="evaluatorInput">Évaluateur</label>
+                <input type="text" id="evaluatorInput" placeholder="Entrez votre nom..." />
+            </div>
+            <div class="control-group">
+                <label for="beltSelect">Programme de Ceinture</label>
+                <select id="beltSelect">
+                    <option value="">Sélectionner...</option>
+                    <!-- Les options dynamiques seront ajoutées par JS -->
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="promotionSelect">Promotion</label>
+                <select id="promotionSelect">
+                    <option value="">Sélectionner...</option>
+                    <!-- Les options dynamiques seront ajoutées par JS -->
+                </select>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs" id="tabsContainer"></div>
+        </div>
+
         <div id="contentContainer"></div>
     </div>
 
@@ -689,7 +689,7 @@
 
         if (!belt || !promotion) {
             tabsContainer.innerHTML = '';
-            contentContainer.innerHTML = `<div class="empty-state"><div class="icon">🥋</div><div>Sélectionnez une ceinture et une promotion</div></div>`;
+            contentContainer.innerHTML = `<div class="empty-state"><div class="icon"><img src=\"shinden-ryu-logo.png\" alt=\"Shinden Ryu Logo\" style=\"width:40px;height:40px;\"></div><div>Sélectionnez une ceinture et une promotion</div></div>`;
             saveButton.style.display = 'none';
             progressIndicator.style.display = 'none';
             toggleBtn.classList.add('hidden');
@@ -749,7 +749,7 @@
         const catIndex = currentTab;
         const cat = program[catIndex];
         // Affichage du poids de la catégorie
-        const weight = cat.weight !== undefined ? cat.weight : null;
+        const weight = cat.poid !== undefined ? cat.poid : null;
         let categoryHeaderHtml = '';
         if (weight !== null) {
             categoryHeaderHtml += `<div style='font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;'>Poids de la catégorie : <b>${weight}%</b></div>`;
