@@ -608,9 +608,11 @@
         </div>
     </div>
 
-    <button class="save-button" onclick="saveEvaluations()" style="display: none;" id="saveButton">
-        💾 Sauvegarder les Évaluations
-    </button>
+    <!-- Boutons d'action -->
+    <div style="display: flex; gap: 8px; margin-top: 16px;">
+      <button class="save-button" id="saveButton" style="display: none;">Sauvegarder les évaluations</button>
+      <button class="save-button" id="resetButton" style="background: #ff9800; display: none;">🧹 Réinitialiser toutes les notes</button>
+    </div>
 </div>
 
 <script type="module">
@@ -740,6 +742,7 @@
                 </div>
             </div>`;
             saveButton.style.display = 'none';
+            document.getElementById('resetButton').style.display = 'none';
             progressIndicator.style.display = 'none';
             toggleBtn.classList.add('hidden');
             currentProgramData = null;
@@ -776,6 +779,7 @@
         controlsVisible = false;
         toggleBtn.classList.remove('hidden');
         saveButton.style.display = 'block';
+        document.getElementById('resetButton').style.display = 'block';
         progressIndicator.style.display = 'block';
     }
 
@@ -1168,6 +1172,40 @@
         origRenderTabContent.apply(this, args);
         setTimeout(setupSpeechToText, 0);
     }
+
+    function resetAllNotesAndRatings() {
+        if (!confirm('Effacer toutes les notes et évaluations pour ce formulaire ?')) return;
+        // Réinitialise toutes les notes et évaluations, mais garde l’évaluateur, la promotion et le programme
+        if (typeof notes === 'object') Object.keys(notes).forEach(k => notes[k] = '');
+        if (typeof evaluations === 'object') Object.keys(evaluations).forEach(k => evaluations[k] = 0);
+        if (typeof renderTabContent === 'function') renderTabContent(currentProgramData, currentStudentList);
+        if (typeof updateVisualIndicators === 'function') updateVisualIndicators();
+        if (typeof updateProgress === 'function') updateProgress();
+    }
+    document.getElementById('resetButton').onclick = resetAllNotesAndRatings;
+
+    // Détection du swipe gauche-droite (touch)
+    let touchStartX = null;
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', function(e) {
+        if (touchStartX !== null && e.changedTouches.length === 1) {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (dx > 120) { // Seuil du swipe droite
+                resetAllNotesAndRatings();
+            }
+        }
+        touchStartX = null;
+    });
+
+    // Raccourci clavier (Ctrl+R ou Cmd+R)
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r') {
+            e.preventDefault();
+            resetAllNotesAndRatings();
+        }
+    });
 </script>
 </body>
 </html>
