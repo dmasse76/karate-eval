@@ -358,7 +358,7 @@
         .note-textarea:focus {
             outline: none;
             border-color: #c41e3a;
-            box-shadow: 0 0 10px rgba(196, 30, 58, 0.15);
+            box-shadow: 0 0 10px 2px #4caf50a0;
         }
 
         .note-textarea::placeholder {
@@ -732,7 +732,13 @@
 
         if (!belt || !promotion) {
             tabsContainer.innerHTML = '';
-            contentContainer.innerHTML = `<div class="empty-state"><div class="icon"><img src=\"shinden-ryu-logo.png\" alt=\"Shinden Ryu Logo\" style=\"width:40px;height:40px;\"></div><div>Sélectionnez une ceinture et une promotion</div></div>`;
+            contentContainer.innerHTML = `<div class="empty-state">
+                <!--div style="margin-bottom: 10px; font-size: 1.2em;">Sélectionnez une ceinture...</div-->
+                <div>Sélectionnez une ceinture et une promotion</div>
+                <div class="icon">
+                    <img src="shinden-ryu-logo.png" alt="Shinden Ryu Logo" style="width:120px;height:120px;">
+                </div>
+            </div>`;
             saveButton.style.display = 'none';
             progressIndicator.style.display = 'none';
             toggleBtn.classList.add('hidden');
@@ -795,7 +801,7 @@
         const weight = cat.poid !== undefined ? cat.poid : null;
         let categoryHeaderHtml = '';
         if (weight !== null) {
-            categoryHeaderHtml += `<div style='font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;'>Poids de la catégorie : <b>${weight}%</b></div>`;
+            categoryHeaderHtml += `<div style='font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;'>Poid de la catégorie : <b>${weight}%</b></div>`;
         }
         contentContainer.insertAdjacentHTML('beforeend', categoryHeaderHtml);
         cat.techniques.forEach((tech, techIndex) => {
@@ -1069,6 +1075,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         await loadPrograms();
         await loadPromotions();
+        renderEvaluation(); // Affiche le message/logo dès le chargement
         beltSelect.addEventListener('change', renderEvaluation);
         promotionSelect.addEventListener('change', renderEvaluation);
     });
