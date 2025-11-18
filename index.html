@@ -479,11 +479,18 @@
         .swipe-container {
             position: relative;
             height: 70px;
-            background: linear-gradient(90deg, #d32f2f 0%, #d32f2f 50%, #4CAF50 50%, #4CAF50 100%);
+            background: #c41e3a; /* Rouge vin par défaut */
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            transition: background 0.3s;
+        }
+        .swipe-container.swiping-left {
+            background: #d32f2f; /* Rouge vif lors du swipe gauche */
+        }
+        .swipe-container.swiping-right {
+            background: #4CAF50; /* Vert lors du swipe droite */
         }
 
         .swipe-slider {
@@ -492,7 +499,7 @@
             transform: translateX(-50%);
             width: 60px;
             height: 60px;
-            background: white;
+            background: transparent; /* plus de fond blanc, juste le logo */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -504,11 +511,16 @@
             user-select: none;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             z-index: 10;
+            overflow: hidden;
         }
-
-        .swipe-slider:active {
-            cursor: grabbing;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        .swipe-slider img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            display: block;
+            pointer-events: none; /* pour que le swipe fonctionne même sur le logo */
+            user-drag: none;
+            -webkit-user-drag: none;
         }
 
         .swipe-text {
@@ -658,7 +670,7 @@
             <div class="swipe-text swipe-text-left">🗑️ Réinitialiser</div>
             <div class="swipe-text swipe-text-right">💾 Sauvegarder</div>
             <div class="swipe-slider" id="swipeSlider">
-                <div class="swipe-icon">⬌</div>
+                <img src="shinden-ryu-logo.png" alt="Shinden Ryu Logo" draggable="false" />
             </div>
         </div>
       </button>
