@@ -460,9 +460,14 @@
         }
 
         .save-button {
-            position: sticky;
+            position: fixed;
+            left: 0;
+            right: 0;
             bottom: 0;
-            width: 100%;
+            width: 100vw;
+            max-width: 600px;
+            margin: 0 auto;
+            z-index: 100;
             padding: 0;
             background: transparent;
             border: none;
@@ -474,6 +479,14 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
             overflow: hidden;
+        }
+        @media (max-width: 600px) {
+          .save-button {
+            left: 0;
+            right: 0;
+            width: 100vw;
+            max-width: 100vw;
+          }
         }
 
         .swipe-container {
@@ -663,18 +676,16 @@
         </div>
     </div>
 
-    <!-- Boutons d'action -->
-    <div style="display: flex; gap: 8px; margin-top: 16px;">
-      <button class="save-button" style="display: none;" id="saveButton">
-        <div class="swipe-container" id="swipeContainer">
-            <div class="swipe-text swipe-text-left">🗑️ Réinitialiser</div>
-            <div class="swipe-text swipe-text-right">💾 Sauvegarder</div>
-            <div class="swipe-slider" id="swipeSlider">
-                <img src="shinden-ryu-logo.png" alt="Shinden Ryu Logo" draggable="false" />
-            </div>
-        </div>
-      </button>
-    </div>
+    <!-- Boutons d'action toujours visibles en bas -->
+    <button class="save-button" style="display: none; z-index: 100;" id="saveButton">
+      <div class="swipe-container" id="swipeContainer">
+          <div class="swipe-text swipe-text-left">🗑️ Réinitialiser</div>
+          <div class="swipe-text swipe-text-right">💾 Sauvegarder</div>
+          <div class="swipe-slider" id="swipeSlider">
+              <img src="shinden-ryu-logo.png" alt="Shinden Ryu Logo" draggable="false" />
+          </div>
+      </div>
+    </button>
 </div>
 
 <script type="module">
