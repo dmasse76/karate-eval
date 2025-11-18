@@ -463,8 +463,8 @@
             position: sticky;
             bottom: 0;
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #c41e3a 0%, #a01830 100%);
+            padding: 0;
+            background: transparent;
             border: none;
             color: #fff;
             font-size: 16px;
@@ -473,33 +473,76 @@
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             flex-shrink: 0;
-        }
-
-        .save-button:active {
-            transform: scale(0.98);
-        }
-
-        .progress-indicator {
-            padding: 10px 15px;
-            background: rgba(196, 30, 58, 0.05);
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .progress-bar {
-            height: 3px;
-            background: rgba(196, 30, 58, 0.1);
-            margin-top: 5px;
-            border-radius: 2px;
             overflow: hidden;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: #c41e3a;
-            transition: width 0.3s ease;
+        .swipe-container {
+            position: relative;
+            height: 70px;
+            background: linear-gradient(90deg, #d32f2f 0%, #d32f2f 50%, #4CAF50 50%, #4CAF50 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .swipe-slider {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 10;
+        }
+
+        .swipe-slider:active {
+            cursor: grabbing;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .swipe-text {
+            position: absolute;
+            width: 50%;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            pointer-events: none;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .swipe-text-left {
+            left: 0;
+            padding-left: 20px;
+        }
+
+        .swipe-text-right {
+            right: 0;
+            padding-right: 20px;
+        }
+
+        .swipe-icon {
+            font-size: 28px;
+            transition: transform 0.2s ease;
+        }
+
+        .swipe-container.swiping-left .swipe-icon {
+            transform: rotate(-15deg);
+        }
+
+        .swipe-container.swiping-right .swipe-icon {
+            transform: rotate(15deg);
         }
 
         @keyframes fadeIn {
@@ -610,8 +653,15 @@
 
     <!-- Boutons d'action -->
     <div style="display: flex; gap: 8px; margin-top: 16px;">
-      <button class="save-button" id="saveButton" style="display: none;">Sauvegarder les évaluations</button>
-      <button class="save-button" id="resetButton" style="background: #ff9800; display: none;">🧹 Réinitialiser toutes les notes</button>
+      <button class="save-button" style="display: none;" id="saveButton">
+        <div class="swipe-container" id="swipeContainer">
+            <div class="swipe-text swipe-text-left">🗑️ Réinitialiser</div>
+            <div class="swipe-text swipe-text-right">💾 Sauvegarder</div>
+            <div class="swipe-slider" id="swipeSlider">
+                <div class="swipe-icon">⬌</div>
+            </div>
+        </div>
+      </button>
     </div>
 </div>
 
@@ -656,6 +706,84 @@
     const progressIndicator = document.getElementById('progressIndicator');
     const controlsPanel = document.getElementById('controlsPanel');
     const toggleBtn = document.getElementById('toggleBtn');
+
+    // --- Swipe Button Logic ---
+    const swipeContainer = document.getElementById('swipeContainer');
+    const swipeSlider = document.getElementById('swipeSlider');
+    let startX = null;
+    let currentX = null;
+    let dragging = false;
+    const swipeThreshold = 100; // px
+
+    function resetSlider() {
+        swipeSlider.style.transition = 'transform 0.3s';
+        swipeSlider.style.transform = 'translateX(-50%)';
+        swipeContainer.classList.remove('swiping-left', 'swiping-right');
+        setTimeout(() => {
+            swipeSlider.style.transition = '';
+        }, 300);
+    }
+
+    function onSwipeEnd(action) {
+        resetSlider();
+        if (action === 'left') {
+            resetAllNotesAndRatings();
+        } else if (action === 'right') {
+            saveEvaluations();
+        }
+    }
+
+    function handleDragStart(e) {
+        dragging = true;
+        swipeSlider.style.transition = '';
+        startX = (e.touches ? e.touches[0].clientX : e.clientX);
+        currentX = startX;
+        document.body.style.userSelect = 'none';
+    }
+
+    function handleDragMove(e) {
+        if (!dragging) return;
+        const x = (e.touches ? e.touches[0].clientX : e.clientX);
+        const dx = x - startX;
+        // Limit slider movement to container width
+        const maxDx = swipeContainer.offsetWidth / 2 - swipeSlider.offsetWidth / 2 - 10;
+        let limitedDx = Math.max(Math.min(dx, maxDx), -maxDx);
+        swipeSlider.style.transform = `translateX(calc(-50% + ${limitedDx}px))`;
+        if (limitedDx < -swipeThreshold) {
+            swipeContainer.classList.add('swiping-left');
+            swipeContainer.classList.remove('swiping-right');
+        } else if (limitedDx > swipeThreshold) {
+            swipeContainer.classList.add('swiping-right');
+            swipeContainer.classList.remove('swiping-left');
+        } else {
+            swipeContainer.classList.remove('swiping-left', 'swiping-right');
+        }
+        currentX = x;
+    }
+
+    function handleDragEnd() {
+        if (!dragging) return;
+        const dx = currentX - startX;
+        if (dx < -swipeThreshold) {
+            onSwipeEnd('left');
+        } else if (dx > swipeThreshold) {
+            onSwipeEnd('right');
+        } else {
+            resetSlider();
+        }
+        dragging = false;
+        document.body.style.userSelect = '';
+    }
+
+    // Mouse events
+    swipeSlider.addEventListener('mousedown', handleDragStart);
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+
+    // Touch events
+    swipeSlider.addEventListener('touchstart', handleDragStart, { passive: false });
+    window.addEventListener('touchmove', handleDragMove, { passive: false });
+    window.addEventListener('touchend', handleDragEnd);
 
     // --- Chargement programmes ---
     async function loadPrograms() {
