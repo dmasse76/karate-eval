@@ -9,24 +9,29 @@
 </head>
 <body>
 
-<div class="wrap">
-    <div class="card">
-        <h1>Résultats des évaluations</h1>
-        <p class="muted">Données récupérées depuis Supabase</p>
-
-        <label for="promotionSelect">Choisir une promotion</label>
-        <select id="promotionSelect">
-            <option value="">Chargement…</option>
-        </select>
-
-        <div id="legend" style="margin-top:14px; display:flex; gap:14px; justify-content:center; font-size:0.9rem;">
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(34,197,94,0.35);margin-right:4px;"></span>≥ 70 : Réussi</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(245,158,11,0.35);margin-right:4px;"></span>40–69 : À débattre</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(239,68,68,0.35);margin-right:4px;"></span>&lt; 40 : Échec</div>
+<div class="container">
+    <header class="header">
+        <div class="header-content">
+            <h1>Résultats des évaluations</h1>
+            <div class="subtitle">Données récupérées depuis Supabase</div>
         </div>
-
-        <div id="results-container" style="margin-top:20px;"></div>
-    </div>
+    </header>
+    <section class="controls">
+        <div class="control-group">
+            <label for="promotionSelect">Choisir une promotion</label>
+            <select id="promotionSelect">
+                <option value="">Chargement…</option>
+            </select>
+        </div>
+        <div id="legend" style="margin-top:10px; display:flex; gap:14px; justify-content:center; font-size:0.9rem;">
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#43a838;color:#fff;vertical-align:middle;margin-right:4px;"></span>≥ 70 : Réussi</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FFE900;color:#000;vertical-align:middle;margin-right:4px;"></span>40–69 : À débattre</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#87081f;color:#fff;vertical-align:middle;margin-right:4px;"></span>&lt; 40 : Échec</div>
+        </div>
+    </section>
+    <main class="content-area">
+        <div id="results-container"></div>
+    </main>
 </div>
 
 <script type="module">
@@ -65,7 +70,7 @@
 
     // --- Charger résultats d'une promotion ---
     async function loadPromotionResults(promotion) {
-        resultsContainer.innerHTML = "<p class='muted'>Chargement…</p>";
+        resultsContainer.innerHTML = "<div class='empty-state'><span class='icon'>⏳</span><br>Chargement…</div>";
 
         const { data, error } = await supabase
             .from("evaluation_results_view")
@@ -76,12 +81,12 @@
 
         if (error) {
             console.error(error);
-            resultsContainer.innerHTML = "<p class='muted'>Erreur de chargement</p>";
+            resultsContainer.innerHTML = "<div class='empty-state'><span class='icon'>❌</span><br>Erreur de chargement</div>";
             return;
         }
 
         if (!data.length) {
-            resultsContainer.innerHTML = "<p class='muted'>Aucun résultat trouvé</p>";
+            resultsContainer.innerHTML = "<div class='empty-state'><span class='icon'>ℹ️</span><br>Aucun résultat trouvé</div>";
             return;
         }
 
@@ -89,9 +94,14 @@
         const programName = data[0].program_name;
 
         resultsContainer.innerHTML = `
-        <h2 style="text-align:center;color:var(--accent);margin-top:10px;">
-            Promotion : ${promotion} — Programme : ${programName}
+        <h2 class="subtitle" style="font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;">
+            Promotion : ${promotion}
         </h2>
+        <h2 class="subtitle" style="font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;">
+            Programme : ${programName}
+        </h2>
+
+
     `;
 
         // Grouper par élève
@@ -109,34 +119,66 @@
     // --- Générer tableau d'un élève ---
     function renderStudentTable(studentName, evals) {
         const wrapper = document.createElement("div");
-        wrapper.classList.add("table-scroll");
+        wrapper.classList.add("technique-card");
+        wrapper.style.marginBottom = "18px";
 
-        // Titre + badge
-        const title = document.createElement("h3");
-        title.style.color = "var(--accent)";
-        title.style.display = "flex";
-        title.style.alignItems = "center";
-        title.style.gap = "8px";
-        title.textContent = studentName;
-
+        // Header cliquable (accordéon)
+        const header = document.createElement("div");
+        header.className = "technique-header";
+        header.style.cursor = "pointer";
+        header.style.display = "flex";
+        header.style.alignItems = "center";
+        header.style.justifyContent = "space-between";
+        // Nom de l'élève à gauche
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = studentName;
+        nameSpan.style.flex = "1";
+        nameSpan.style.textAlign = "left";
+        // Badge centré
         const badge = document.createElement("span");
-        badge.classList.add("status-badge");
-        badge.style.padding = "2px 8px";
-        badge.style.borderRadius = "6px";
-        badge.style.fontSize = "0.8rem";
+        badge.className = "status-badge";
+        badge.style.margin = "0 auto";
+        badge.style.flex = "0 0 auto";
+        badge.style.padding = "4px 18px";
+        badge.style.borderRadius = "16px";
         badge.style.fontWeight = "600";
-        title.appendChild(badge);
-        wrapper.appendChild(title);
+        badge.style.fontSize = "0.95em";
+        badge.style.lineHeight = "1.6";
+        badge.style.display = "inline-block";
+        badge.style.letterSpacing = "0.01em";
+        // Flèche à droite
+        const arrow = document.createElement("span");
+        arrow.className = "technique-icon";
+        arrow.textContent = "▼";
+        arrow.style.flex = "0 0 auto";
+        // Ajout dans l'ordre : nom, badge, flèche
+        header.appendChild(nameSpan);
+        header.appendChild(badge);
+        header.appendChild(arrow);
+        header.onclick = () => {
+            wrapper.classList.toggle("open");
+        };
+        wrapper.appendChild(header);
+
+        // Conteneur accordéon
+        const studentsContainer = document.createElement("div");
+        studentsContainer.className = "students-container";
 
         // Table
         const table = document.createElement("table");
+        table.style.width = "100%";
+        table.style.background = "rgba(255,255,255,0.95)";
+        table.style.borderRadius = "10px";
+        table.style.overflow = "hidden";
+        table.style.marginTop = "8px";
+        table.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
         table.innerHTML = `
         <thead>
-            <tr>
-                <th>Évaluateur</th>
-                <th>Date</th>
-                <th>Note</th>
-                <th>Inclure</th>
+            <tr style="background:rgba(196,30,58,0.08);">
+                <th style='padding-left:14px;'>Évaluateur</th>
+                <th style='padding-left:14px;'>Note</th>
+                <th style='padding-left:14px;'>Inclure</th>
+                <th style='padding-left:14px;'>Date</th>
             </tr>
         </thead>
     `;
@@ -145,25 +187,33 @@
         evals.forEach((ev, idx) => {
             const rowId = `${studentName.replace(/\s/g,'')}-row-${idx}`;
             const tr = document.createElement("tr");
+            tr.style.height = "38px";
             tr.innerHTML = `
-            <td>${ev.evaluator_name}</td>
-            <td>${new Date(ev.last_saved_at).toLocaleDateString()}</td>
-            <td>${ev.total_score}</td>
-            <td><input type="checkbox" class="include-check" id="${rowId}" checked /></td>
+            <td style='padding-left:14px;'>${ev.evaluator_name}</td>
+            <td style='padding-left:14px;'>${ev.total_score}</td>
+            <td style='padding-left:14px;'><input type="checkbox" class="include-check" id="${rowId}" checked /></td>
+            <td style='padding-left:14px;'>${new Date(ev.last_saved_at).toLocaleDateString()}</td>
         `;
             tbody.appendChild(tr);
         });
 
         // Ligne moyenne
         const avgRow = document.createElement("tr");
+        avgRow.style.fontWeight = "bold";
+        avgRow.style.height = "38px";
         avgRow.innerHTML = `
-        <td colspan="2" style="font-weight:bold;">Moyenne</td>
-        <td id="avg-${studentName.replace(/\s/g,'')}">0</td>
-        <td></td>
+        <td style='padding-left:14px;'>Moyenne</td>
+        <td id="avg-${studentName.replace(/\s/g,'')}" style='padding-left:14px;'>0</td>
+        <td style='padding-left:14px;'></td>
+        <td style='padding-left:14px;'></td>
     `;
         tbody.appendChild(avgRow);
         table.appendChild(tbody);
-        wrapper.appendChild(table);
+        studentsContainer.appendChild(table);
+        wrapper.appendChild(studentsContainer);
+
+        // Accordéon fermé par défaut
+        // wrapper.classList.add('open');
 
         wrapper.style.opacity = 0;
         setTimeout(() => wrapper.style.opacity = 1, 50);
@@ -195,27 +245,53 @@
         avgCell.textContent = avg;
 
         const row = avgCell.parentElement;
-        const badge = wrapper.querySelector(".status-badge");
+        const moyenneCell = row.children[0];
+        const valeurCell = row.children[1];
+        // Badge dans le header
+        const badge = wrapper.querySelector('.technique-header .status-badge');
 
-        // Retirer toutes les classes
+        // Reset backgrounds et ombre
+        moyenneCell.style.background = '';
+        valeurCell.style.background = '';
         row.classList.remove("row-green", "row-yellow", "row-red");
+        badge.textContent = "";
+        badge.style.background = "";
+        badge.style.color = "";
+        wrapper.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
 
+        let bgColor = '', textColor = '', shadowColor = '';
         if (avg >= 70) {
             row.classList.add("row-green");
             badge.textContent = "Réussi";
-            badge.style.background = "#3fbf4c33";
-            badge.style.color = "#0b1220";
+            bgColor = "#43a838";
+            textColor = "#fff";
+            badge.style.background = bgColor;
+            badge.style.color = textColor;
+            shadowColor = '-8px 0 0 0 #43a838, 0 2px 8px rgba(0,0,0,0.05)';
         } else if (avg >= 40) {
             row.classList.add("row-yellow");
             badge.textContent = "À débattre";
-            badge.style.background = "#f5d13d33";
-            badge.style.color = "#0b1220";
+            bgColor = "#FFE900";
+            textColor = "#000";
+            badge.style.background = bgColor;
+            badge.style.color = textColor;
+            shadowColor = '-8px 0 0 0 #FFE900, 0 2px 8px rgba(0,0,0,0.05)';
         } else {
             row.classList.add("row-red");
             badge.textContent = "Échec";
-            badge.style.background = "#ff4d4d33";
-            badge.style.color = "#fff";
+            bgColor = "#87081f";
+            textColor = "#fff";
+            badge.style.background = bgColor;
+            badge.style.color = textColor;
+            shadowColor = '-8px 0 0 0 #87081f, 0 2px 8px rgba(0,0,0,0.05)';
         }
+        // Appliquer la couleur de fond sur les deux cellules
+        moyenneCell.style.background = bgColor;
+        valeurCell.style.background = bgColor;
+        moyenneCell.style.color = textColor;
+        valeurCell.style.color = textColor;
+        // Appliquer l'ombre colorée vive uniquement sur le côté gauche de la carte technique
+        wrapper.style.boxShadow = shadowColor;
     }
 
     // --- Events ---
