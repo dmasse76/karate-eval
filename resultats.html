@@ -13,7 +13,7 @@
     <header class="header">
         <div class="header-content">
             <h1>Résultats des évaluations</h1>
-            <div class="subtitle">Données récupérées depuis Supabase</div>
+            <div class="subtitle">Données récupérées depuis Okinawa</div>
         </div>
     </header>
     <section class="controls">
@@ -26,7 +26,7 @@
         <div id="legend" style="margin-top:10px; display:flex; gap:14px; justify-content:center; font-size:0.9rem;">
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#43a838;color:#fff;vertical-align:middle;margin-right:4px;"></span>≥ 70 : Réussi</div>
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FFE900;color:#000;vertical-align:middle;margin-right:4px;"></span>40–69 : À débattre</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#87081f;color:#fff;vertical-align:middle;margin-right:4px;"></span>&lt; 40 : Échec</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#CD001A;color:#fff;vertical-align:middle;margin-right:4px;"></span>&lt; 40 : Échec</div>
         </div>
     </section>
     <main class="content-area">
@@ -257,11 +257,11 @@
         } else {
             wrapper.classList.add("row-red");
             badge.textContent = avg + "%";
-            bgColor = "#87081f";
+            bgColor = "#CD001A";
             textColor = "#fff";
             badge.style.background = bgColor;
             badge.style.color = textColor;
-            shadowColor = '-8px 0 0 0 #87081f, 0 2px 8px rgba(0,0,0,0.05)';
+            shadowColor = '-8px 0 0 0 #CD001A, 0 2px 8px rgba(0,0,0,0.05)';
         }
         // Appliquer l'ombre colorée vive uniquement sur le côté gauche de la carte technique
         wrapper.style.boxShadow = shadowColor;

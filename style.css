@@ -198,6 +198,31 @@ input[type="text"]::placeholder {
     -webkit-overflow-scrolling: touch;
 }
 
+/* Réduit la largeur des tableaux de résultats sur mobile et ajoute du padding */
+@media (max-width: 600px) {
+  .content-area {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .technique-card {
+    margin-left: 8px;
+    margin-right: 8px;
+    width: auto;
+    box-sizing: border-box;
+  }
+  table {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-inline: 0;
+  }
+  table th, table td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
 .tab-content {
     display: none;
     padding: 15px;
@@ -618,4 +643,15 @@ input[type="text"]::placeholder {
     0% { box-shadow: 0 0 10px 2px #4caf50a0; }
     70% { box-shadow: 0 0 16px 4px #4caf5050; }
     100% { box-shadow: 0 0 10px 2px #4caf50a0; }
+}
+
+
+.technique-card.row-green {
+    border-left: 4px solid #43a838;
+}
+.technique-card.row-yellow {
+    border-left: 4px solid #ede466;
+}
+.technique-card.row-red {
+    border-left: 4px solid #CD001A;
 }
