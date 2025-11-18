@@ -196,18 +196,6 @@
         `;
             tbody.appendChild(tr);
         });
-
-        // Ligne moyenne
-        const avgRow = document.createElement("tr");
-        avgRow.style.fontWeight = "bold";
-        avgRow.style.height = "38px";
-        avgRow.innerHTML = `
-        <td style='padding-left:14px;'>Moyenne</td>
-        <td id="avg-${studentName.replace(/\s/g,'')}" style='padding-left:14px;'>0</td>
-        <td style='padding-left:14px;'></td>
-        <td style='padding-left:14px;'></td>
-    `;
-        tbody.appendChild(avgRow);
         table.appendChild(tbody);
         studentsContainer.appendChild(table);
         wrapper.appendChild(studentsContainer);
@@ -241,55 +229,40 @@
             }
         });
         const avg = count ? Math.round(sum / count) : 0;
-        const avgCell = wrapper.querySelector(`#avg-${studentName.replace(/\s/g,'')}`);
-        avgCell.textContent = avg;
-
-        const row = avgCell.parentElement;
-        const moyenneCell = row.children[0];
-        const valeurCell = row.children[1];
         // Badge dans le header
         const badge = wrapper.querySelector('.technique-header .status-badge');
-
         // Reset backgrounds et ombre
-        moyenneCell.style.background = '';
-        valeurCell.style.background = '';
-        row.classList.remove("row-green", "row-yellow", "row-red");
+        wrapper.classList.remove("row-green", "row-yellow", "row-red");
         badge.textContent = "";
         badge.style.background = "";
         badge.style.color = "";
         wrapper.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
-
         let bgColor = '', textColor = '', shadowColor = '';
         if (avg >= 70) {
-            row.classList.add("row-green");
-            badge.textContent = "Réussi";
+            wrapper.classList.add("row-green");
+            badge.textContent = avg + "%";
             bgColor = "#43a838";
             textColor = "#fff";
             badge.style.background = bgColor;
             badge.style.color = textColor;
             shadowColor = '-8px 0 0 0 #43a838, 0 2px 8px rgba(0,0,0,0.05)';
         } else if (avg >= 40) {
-            row.classList.add("row-yellow");
-            badge.textContent = "À débattre";
+            wrapper.classList.add("row-yellow");
+            badge.textContent = avg + "%";
             bgColor = "#FFE900";
             textColor = "#000";
             badge.style.background = bgColor;
             badge.style.color = textColor;
             shadowColor = '-8px 0 0 0 #FFE900, 0 2px 8px rgba(0,0,0,0.05)';
         } else {
-            row.classList.add("row-red");
-            badge.textContent = "Échec";
+            wrapper.classList.add("row-red");
+            badge.textContent = avg + "%";
             bgColor = "#87081f";
             textColor = "#fff";
             badge.style.background = bgColor;
             badge.style.color = textColor;
             shadowColor = '-8px 0 0 0 #87081f, 0 2px 8px rgba(0,0,0,0.05)';
         }
-        // Appliquer la couleur de fond sur les deux cellules
-        moyenneCell.style.background = bgColor;
-        valeurCell.style.background = bgColor;
-        moyenneCell.style.color = textColor;
-        valeurCell.style.color = textColor;
         // Appliquer l'ombre colorée vive uniquement sur le côté gauche de la carte technique
         wrapper.style.boxShadow = shadowColor;
     }
