@@ -25,8 +25,8 @@
         </div>
         <div id="legend" style="margin-top:10px; display:flex; gap:14px; justify-content:center; font-size:0.9rem;">
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#43a838;color:#fff;vertical-align:middle;margin-right:4px;"></span>≥ 70 : Réussi</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FFE900;color:#000;vertical-align:middle;margin-right:4px;"></span>40–69 : À débattre</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#CD001A;color:#fff;vertical-align:middle;margin-right:4px;"></span>&lt; 40 : Échec</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FFE900;color:#000;vertical-align:middle;margin-right:4px;"></span>50–69 : À débattre</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#CD001A;color:#fff;vertical-align:middle;margin-right:4px;"></span>&lt; 50 : Échec</div>
         </div>
     </section>
     <main class="content-area">
@@ -246,7 +246,7 @@
             badge.style.background = bgColor;
             badge.style.color = textColor;
             shadowColor = '-8px 0 0 0 #43a838, 0 2px 8px rgba(0,0,0,0.05)';
-        } else if (avg >= 40) {
+        } else if (avg >= 50) {
             wrapper.classList.add("row-yellow");
             badge.textContent = avg + "%";
             bgColor = "#FFE900";

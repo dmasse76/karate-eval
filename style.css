@@ -193,9 +193,18 @@ input[type="text"]::placeholder {
 }
 
 .content-area {
-    flex: 1;
+    flex: 1 1 auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    min-height: 0;
+    padding-bottom:80px; /* Pour éviter que le bouton fixe ne masque le contenu */
+}
+
+#contentContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding-bottom: 80px; /* Pour éviter que le bouton fixe ne masque le contenu */
 }
 
 /* Réduit la largeur des tableaux de résultats sur mobile et ajoute du padding */

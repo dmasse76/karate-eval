@@ -512,6 +512,20 @@ function resetAllNotesAndRatings() {
 window.resetAllNotesAndRatings = resetAllNotesAndRatings;
 document.getElementById('resetButton').onclick = resetAllNotesAndRatings;
 
+function toggleControls() {
+    const controlsPanel = document.getElementById('controlsPanel');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const isCollapsed = controlsPanel.classList.contains('collapsed');
+    if (isCollapsed) {
+        controlsPanel.classList.remove('collapsed');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+    } else {
+        controlsPanel.classList.add('collapsed');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+}
+window.toggleControls = toggleControls;
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadPrograms();
     await loadPromotions();
