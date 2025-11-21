@@ -255,7 +255,7 @@ function renderTabContent(program, studentList) {
     const weight = cat.poid !== undefined ? cat.poid : null;
     let categoryHeaderHtml = '';
     if (weight !== null) {
-        categoryHeaderHtml += `<div style='font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;'>Poid de la catégorie : <b>${weight}%</b></div>`;
+        categoryHeaderHtml += `<div style='font-size:13px;color:#c41e3a;font-weight:500;margin:18px 0 18px 0;'>Poids de la catégorie : <b>${weight}%</b></div>`;
     }
     contentContainer.insertAdjacentHTML('beforeend', categoryHeaderHtml);
     cat.techniques.forEach((tech, techIndex) => {
