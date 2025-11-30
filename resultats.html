@@ -25,7 +25,8 @@
         </div>
         <div id="legend" style="margin-top:10px; display:flex; gap:14px; justify-content:center; font-size:0.9rem;">
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#43a838;color:#fff;vertical-align:middle;margin-right:4px;"></span>≥ 70 : Réussi</div>
-            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FFE900;color:#000;vertical-align:middle;margin-right:4px;"></span>50–69 : À débattre</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FFE900;color:#000;vertical-align:middle;margin-right:4px;"></span>60–69 : Passable (À discuter)</div>
+            <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F47920;color:#000;vertical-align:middle;margin-right:4px;"></span>50–59 : Faible (À discuter)</div>
             <div><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#CD001A;color:#fff;vertical-align:middle;margin-right:4px;"></span>&lt; 50 : Échec</div>
         </div>
     </section>
@@ -232,7 +233,7 @@
         // Badge dans le header
         const badge = wrapper.querySelector('.technique-header .status-badge');
         // Reset backgrounds et ombre
-        wrapper.classList.remove("row-green", "row-yellow", "row-red");
+        wrapper.classList.remove("row-green", "row-yellow", "row-orange","row-red");
         badge.textContent = "";
         badge.style.background = "";
         badge.style.color = "";
@@ -246,7 +247,7 @@
             badge.style.background = bgColor;
             badge.style.color = textColor;
             shadowColor = '-8px 0 0 0 #43a838, 0 2px 8px rgba(0,0,0,0.05)';
-        } else if (avg >= 50) {
+        } else if (avg >= 60) {
             wrapper.classList.add("row-yellow");
             badge.textContent = avg + "%";
             bgColor = "#FFE900";
@@ -254,6 +255,14 @@
             badge.style.background = bgColor;
             badge.style.color = textColor;
             shadowColor = '-8px 0 0 0 #FFE900, 0 2px 8px rgba(0,0,0,0.05)';
+        } else if (avg >= 50) {
+            wrapper.classList.add("row-orange");
+            badge.textContent = avg + "%";
+            bgColor = "#F47920";
+            textColor = "#000";
+            badge.style.background = bgColor;
+            badge.style.color = textColor;
+            shadowColor = '-8px 0 0 0 #F47920, 0 2px 8px rgba(0,0,0,0.05)';
         } else {
             wrapper.classList.add("row-red");
             badge.textContent = avg + "%";
