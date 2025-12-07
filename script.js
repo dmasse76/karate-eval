@@ -1,6 +1,6 @@
 // script.js extrait depuis index.html
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://gcdruwruygjclvszgerc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_NPo8JYU8do60kvTzt_3Wbw_vI3O2DEU';
